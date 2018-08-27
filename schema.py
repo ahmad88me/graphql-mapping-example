@@ -106,10 +106,31 @@ class Query(graphene.ObjectType):
     #     return list([])
     #     #return list(PersonOT.objects.all())
 
-schema = graphene.Schema(query=Query)
+
+class CreatePersona(graphene.Mutation):
+    class Arguments:
+        nombre = graphene.String(required=True)
+
+    persona = graphene.Field(Persona)
+
+    def mutate(self, info, **kwargs):
+        original_kwargs = get_mapped_kwargs(personas_mapping, kwargs)
+        persona = PersonModel(**original_kwargs)
+        persona.save()
+        return CreatePersona(persona=persona)
 
 
-def create_person(name):
-    p = PersonModel(name=name)
-    p.save()
+class Mutation(graphene.ObjectType):
+    create_persona = CreatePersona.Field()
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
+
+
+# def create_person(name):
+#     p = PersonModel(name=name)
+#     p.save()
+
+
+
 
